@@ -1,21 +1,32 @@
-name: Build APK
-on: [push, workflow_dispatch] # يعمل تلقائياً عند أي تغيير أو يدوياً
+name: Global Flutter Factory
+on: [push, workflow_dispatch]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build apk --release
+
+      - name: Initialize and Build
+        run: |
+          # إنشاء مشروع جديد مؤقت لضمان وجود كافة ملفات الأندرويد
+          flutter create --project-name factory_app --org com.ruqi.factory . --force
+          flutter pub get
+          flutter build apk --release
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: my-app-release
+          name: Ruqi-Release-APK
           path: build/app/outputs/flutter-apk/app-release.apk
